@@ -7,8 +7,9 @@ import (
 
 //Tom Steal called this approch a naive way to go about port scanner
 
-//This is 100% faster but have a race condition at no 22 and 80
+//This is 98% faster but have a race condition at no 22 and 80
 //this will have a race condition if the close func is used
+//I fix the race condition by closing the connection when a connection is made
 func concurrentScan() <-chan string {
 	streamConn := make(chan string)
 	for i := 1; i < 1024; i++ {
@@ -40,6 +41,8 @@ func concurrentScan2() <-chan string {
 	return streamConn
 }
 
+//concurrentScan3 is better than concurrentScan maybe because is close to how
+//we shared the work with main func
 func concurrentScan3(i int, str chan<- string) {
 	c, err := net.Dial("tcp", fmt.Sprintf("scanme.nmap.org:%d", i))
 	if err == nil {
